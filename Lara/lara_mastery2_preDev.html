@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Lara 6th Simul</title>
+        <meta charset="utf-8"/>
+        <style>
+            html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            div {
+                z-index: 999; background-color:lightgray; border:1px solid gray; padding:5px; text-align:center
+            }
+            input{
+                width: 50px; height: 20px; font-size: 20px; text-align:center; font-weight: bold; color: blue;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="msg" style="position: absolute; left: 10px; top: 220px;">
+            스킬의 딜 점유율
+            <br/>
+            새록새록 꽃누리 : <input id="originskill" type="text"/>
+            <br/>
+            정기 뿌리기 : <input id="mastery1_1" type="text"/>
+            <br/>
+            산 꼬마 : <input id="mastery1_2" type="text"/>
+            <br/>
+            산의 씨앗 : <input id="mastery1_3" type="text"/>
+            <br/>
+            분출 : 해돋이 우물 : <input id="mastery2_1" type="text"/>
+            <br/>
+            분출 : 너울이는 강 : <input id="mastery2_2" type="text"/>
+            <br/>
+            분출 : 돌개 바람 : <input id="mastery2_3" type="text"/>
+            <br/>
+            해 강 산 바람 : <input id="fifth1" type="text"/>
+            <br/>
+            큰 기지개 : <input id="fifth2" type="text"/>
+            <br/>
+            산등성이 굽이굽이 : <input id="fifth3" type="text"/>
+            <br/>
+            용솟음치는 정기 : <input id="fifth4" type="text"/>
+            <br/>
+            패시브 1레벨 + 컴뱃 오더스 : <input id="abilcombat" type="text"/>
+            <br/>
+            계산 기준
+            <br/>
+            <label><input type="radio" name="erda" value="erda" checked> 솔 에르다 우선</label>
+            <br/>
+            <label><input type="radio" name="erda" value="erdapiece"> 솔 에르다 조각 우선</label>
+            <br/>
+            <input type="button" style="width: 100px; height: 25px; font-size: 14px; font-weight: bold; color: blue;" value="계산하기" onclick="calcData()" />
+        </div>
+
+        <div id="msg2" style="position: absolute; left: 300px; top: 220px;">
+            현재 스킬 레벨
+            <br/>
+            새록새록 꽃누리 : <input id="originskillLv" type="text"/>
+            <br/>
+            정기 뿌리기 VI : <input id="mastery1Lv" type="text"/>
+            <br/>
+            용맥 분출 VI : <input id="mastery2Lv" type="text"/>
+            <br/>
+            해 강 산 바람 : <input id="fifth1Lv" type="text"/>
+            <br/>
+            큰 기지개 : <input id="fifth2Lv" type="text"/>
+            <br/>
+            산등성이 굽이굽이 : <input id="fifth3Lv" type="text"/>
+            <br/>
+            용솟음치는 정기 : <input id="fifth4Lv" type="text"/>
+            <br/>
+        </div>
+
+        <div id="msg3" style="position: absolute; left: 550px; top: 220px; text-align:left">
+        </div>
+        <div id="msg4" style="position: absolute; left: 750px; top: 220px; text-align:left">
+        </div>
+        <script>
+            // 기본값 설정
+            originskill.value = 11.01; // 꽃누리
+            mastery1_1.value = 4.81; // 정뿌
+            mastery1_2.value = 2.58; // 꼬마
+            mastery1_3.value = 2.74; // 씨앗
+            mastery2_1.value = 0.00; // 해분출
+            mastery2_2.value = 0.00; // 강분출
+            mastery2_3.value = 0.00; // 바람분출
+            fifth1.value = 12.37; // 해강산바람
+            fifth2.value = 9.31; // 기지개
+            fifth3.value = 8.18; // 굽이굽이
+            fifth4.value = 4.34; // 용솟음
+            abilcombat.value = 2;
+
+            originskillLv.value = 1;
+            mastery1Lv.value = 0;
+            mastery2Lv.value = 0;
+            fifth1Lv.value = 0;
+            fifth2Lv.value = 0;
+            fifth3Lv.value = 0;
+            fifth4Lv.value = 0;
+            // 여기까지 기본 값 설정
+
+            function calcData(){
+                // calc(originskill.value,mastery1_1.value,mastery1_2.value,mastery1_3.value,fifth1.value,fifth2.value,fifth3.value,fifth4.value,document.querySelector('input[name="erda"]:checked').value,abilcombat.value);
+                calc(originskill.value,
+                mastery1_1.value,mastery1_2.value,mastery1_3.value,
+                mastery2_1.value,mastery2_2.value,mastery2_3.value,
+                fifth1.value,fifth2.value,fifth3.value,fifth4.value,
+                document.querySelector('input[name="erda"]:checked').value,
+                abilcombat.value,
+                originskillLv.value,mastery1Lv.value,mastery2Lv.value,fifth2Lv.value,fifth3Lv.value,fifth4Lv.value);
+            }
+
+            //calc
+            var nowLevel = [1,0,0,0,0,0,0];
+            var nowDamage = 100;
+            var oringinShare;
+            var mastery1_1Share;
+            var mastery1_2Share;
+            var mastery1_3Share;
+            var mastery2_1Share;
+            var mastery2_2Share;
+            var mastery2_3Share;
+            var fif1Share;
+            var fif2Share;
+            var fif3Share;
+            var fif4Share;
+            var isErda;
+            var abilCombatLevel;
+
+            var totErda = 0;
+            var totErdaPiece = 0;
+            function calc(o, m1_1, m1_2, m1_3, m2_1, m2_2, m2_3, f1, f2, f3, f4, e, abc, lv0 = null, lv1 = null, lv2 = null, lv3 = null, lv4 = null, lv5 = null){
+                if(lv0 == null)nowLevel[0] = 1;
+                else nowLevel[0] = Number(lv0);
+                if(lv1 == null)nowLevel[1] = 0;
+                else nowLevel[1] = Number(lv1);
+                if(lv2 == null)nowLevel[2] = 0;
+                else nowLevel[2] = Number(lv2);
+                if(lv3 == null)nowLevel[3] = 0;
+                else nowLevel[3] = Number(lv3);
+                if(lv4 == null)nowLevel[4] = 0;
+                else nowLevel[4] = Number(lv4);
+                if(lv5 == null)nowLevel[5] = 0;
+                else nowLevel[5] = Number(lv5);
+                oringinShare = o;
+                mastery1_1Share = m1_1;
+                mastery1_2Share = m1_2;
+                mastery1_3Share = m1_3;
+                mastery2_1Share = m2_1;
+                mastery2_2Share = m2_2;
+                mastery2_3Share = m2_3;
+                fif1Share = f1;
+                fif2Share = f2;
+                fif3Share = f3;
+                fif4Share = f4;
+                isErda = e;
+                abilCombatLevel = abc;
+                count = 1;
+
+                var element = document.getElementById('msg3');
+                element.innerText='';
+                element = document.getElementById('msg4');
+                element.innerText='';
+
+                while(nowLevel[0]+nowLevel[1]+nowLevel[2]+nowLevel[3]+nowLevel[4]+nowLevel[5]+nowLevel[6]<30*7){ // 모든 스킬레벨이 30레벨(최대강화) 될 때까지 반복
+
+                    // 최고 효율을 보이는 스킬을 저장할 변수
+                    maxDamage = 0;
+                    maxEfficiency = 0;
+                    maxIdx = 0;
+
+                    for(i=0;i<7;i++){ // 7종의 스킬에 대한 강화 시뮬레이션 및  효율 계산
+                        var calcDamage = calcNext(i);
+                        var calcEfficiency = calcEfficiencyErda(calcDamage, i, isErda);
+                        if(maxEfficiency<calcEfficiency){ // 효율 좋은 강화 발견!
+                            // 기억한다.
+                            maxDamage = calcDamage;
+                            maxEfficiency = calcEfficiency;
+                            maxIdx = i;
+                        }
+                    }
+                    
+                    nowLevel[maxIdx]++; // 최고 효율의 스킬레벨을 1 증가
+
+                    printStr = ''+ count +'. ';
+                    switch(maxIdx){
+                        case 0:
+                            printStr += '새록새록 꽃누리';
+                            break;
+                        case 1:
+                            printStr += '정기 뿌리기 VI';
+                            break;
+                        case 2:
+                            printStr += '용맥 분출 VI';
+                            break;
+                        case 3:
+                            printStr += '해 강 산 바람';
+                            break;
+                        case 4:
+                            printStr += '큰 기지개';
+                            break;
+                        case 5:
+                            printStr += '산등성이 굽이굽이';
+                            break;
+                        case 6:
+                            printStr += '용솟음치는 정기';
+                            break;
+                    }
+
+                    // console.log(''+ count +'. 올린 스킬 : ' + (maxIdx+1) + '번 스킬');
+                    console.log(printStr);
+                    element = document.getElementById('msg3');
+                    element.innerText += printStr + ((nowLevel[0]+nowLevel[1]+nowLevel[2]+nowLevel[3]+nowLevel[4]+nowLevel[5]+nowLevel[6]==30*7)?' ':'\n');
+                    element = document.getElementById('msg4');
+                    element.innerText += ''+ nowLevel[0]+'/'+nowLevel[1]+'/'+nowLevel[2]+'/'+nowLevel[3]+'/'+nowLevel[4]+'/'+nowLevel[5]+'/'+nowLevel[6] + ((nowLevel[0]+nowLevel[1]+nowLevel[2]+nowLevel[3]+nowLevel[4]+nowLevel[5]+nowLevel[6]==30*7)?' ':'\n');
+                    count++;
+                    console.log('현재 상태 : '+nowLevel[0]+'/'+nowLevel[1]+'/'+nowLevel[2]+'/'+nowLevel[3]+'/'+nowLevel[4]+'/'+nowLevel[5]+'/'+nowLevel[6]);
+                    console.log('증가한 최종데미지 : ' + (maxDamage-100) + '%');
+                    switch(maxIdx){
+                        case 0:
+                            if(isErda=='erda')console.log('솔 에르다 1개당 최종데미지 상승량 : ' + (maxDamage-100)/ORIGIN_CONSUMPTION_ERDA[nowLevel[maxIdx]-1] + '%');
+                            else console.log('솔 에르다 조각 1개당 최종데미지 상승량 : ' + (maxDamage-100)/ORIGIN_CONSUMPTION_ERDA_PIECE[nowLevel[maxIdx]-1] + '%');
+                            console.log('강화에 사용한 솔 에르다 : ' + ORIGIN_CONSUMPTION_ERDA[nowLevel[maxIdx]-1]);
+                            console.log('강화에 사용한 솔 에르다 조각 : ' + ORIGIN_CONSUMPTION_ERDA_PIECE[nowLevel[maxIdx]-1]);
+                            totErda += ORIGIN_CONSUMPTION_ERDA[nowLevel[maxIdx]-1];
+                            totErdaPiece += ORIGIN_CONSUMPTION_ERDA_PIECE[nowLevel[maxIdx]-1];
+                            break;
+                        case 1:
+                        case 2:                
+                            if(isErda=='erda')console.log('솔 에르다 1개당 최종데미지 상승량 : ' + (maxDamage-100)/MASTERY_CONSUMPTION_ERDA[nowLevel[maxIdx]-1] + '%');
+                            else console.log('솔 에르다 조각 1개당 최종데미지 상승량 : ' + (maxDamage-100)/MASTERY_CONSUMPTION_ERDA_PIECE[nowLevel[maxIdx]-1] + '%');
+                            console.log('강화에 사용한 솔 에르다 : ' + MASTERY_CONSUMPTION_ERDA[nowLevel[maxIdx]-1]);
+                            console.log('강화에 사용한 솔 에르다 조각 : ' + MASTERY_CONSUMPTION_ERDA_PIECE[nowLevel[maxIdx]-1]);
+                            totErda += MASTERY_CONSUMPTION_ERDA[nowLevel[maxIdx]-1];
+                            totErdaPiece += MASTERY_CONSUMPTION_ERDA_PIECE[nowLevel[maxIdx]-1];
+                            break;
+                        case 3:                
+                        case 4:                
+                        case 5:
+                        case 6:
+                            if(isErda=='erda')console.log('솔 에르다 1개당 최종데미지 상승량 : ' + (maxDamage-100)/FIFTH_CONSUMPTION_ERDA[nowLevel[maxIdx]-1] + '%');
+                            else console.log('솔 에르다 조각 1개당 최종데미지 상승량 : ' + (maxDamage-100)/FIFTH_CONSUMPTION_ERDA_PIECE[nowLevel[maxIdx]-1] + '%');
+                            console.log('강화에 사용한 솔 에르다 : ' + FIFTH_CONSUMPTION_ERDA[nowLevel[maxIdx]-1]);
+                            console.log('강화에 사용한 솔 에르다 조각 : ' + FIFTH_CONSUMPTION_ERDA_PIECE[nowLevel[maxIdx]-1]);
+                            totErda += FIFTH_CONSUMPTION_ERDA[nowLevel[maxIdx]-1];
+                            totErdaPiece += FIFTH_CONSUMPTION_ERDA_PIECE[nowLevel[maxIdx]-1];
+                            break;
+                        default:
+                            return 0;
+                    }
+                    console.log('강화에 사용한 솔 에르다(누적) : ' + totErda);
+                    console.log('강화에 사용한 솔 에르다 조각(누적) : ' + totErdaPiece);
+
+                    oringinShare = oringinShare/maxDamage*100;
+                    mastery1_1Share = mastery1_1Share/maxDamage*100;
+                    mastery1_2Share = mastery1_2Share/maxDamage*100;
+                    mastery1_3Share = mastery1_3Share/maxDamage*100;
+                    mastery2_1Share = mastery2_1Share/maxDamage*100;
+                    mastery2_2Share = mastery2_2Share/maxDamage*100;
+                    mastery2_3Share = mastery2_3Share/maxDamage*100;
+                    fif1Share = fif1Share/maxDamage*100;
+                    fif2Share = fif2Share/maxDamage*100;
+                    fif3Share = fif3Share/maxDamage*100;
+                    fif4Share = fif4Share/maxDamage*100;
+                }
+            }
+
+            function calcNext(what){
+                var newDamage = nowDamage;
+                switch(what){
+                    case 0: // 오리진 강화한 경우의 계산
+                        if(nowLevel[0]>=30)return -1; // 이미 풀강인 경우 데미지의 변화 없음(0을 되돌려서 아예 우선순위에서 제외할 수 있도록 함)
+                        newDamage -= oringinShare; // 기존의 데미지를 100으로 보고 오리진 스킬의 점유율만큼을 뺌
+                        newDamage += originDamage(nowLevel[0]+1) / originDamage(nowLevel[0])*oringinShare; // 새로 강화한 레벨의 퍼뎀과 현재 레벨의 퍼뎀 차이로 데미지 상승량 계산
+                        break;
+                    case 1: // 마스터리 1번 스킬 강화한 경우의 계산
+                        if(nowLevel[1]>=30)return -1;
+                        newDamage -= mastery1_1Share;
+                        newDamage -= mastery1_2Share;
+                        newDamage -= mastery1_3Share;
+                        newDamage += mastery1_1Damage(nowLevel[1]+1)/mastery1_1Damage(nowLevel[1])*mastery1_1Share;
+                        newDamage += mastery1_2Damage(nowLevel[1]+1,abilCombatLevel)/mastery1_2Damage(nowLevel[1],abilCombatLevel)*mastery1_2Share;
+                        newDamage += mastery1_3Damage(nowLevel[1]+1,abilCombatLevel)/mastery1_3Damage(nowLevel[1],abilCombatLevel)*mastery1_3Share;
+                        // newDamage += fifDamage(nowLevel[2]+1) / fifDamage(nowLevel[2])*fif1Share;
+                        break;
+                    case 2: // 마스터리 2번 스킬 강화한 경우의 계산
+                        if(nowLevel[2]>=30)return -1;
+                        newDamage -= mastery2_1Share;
+                        newDamage -= mastery2_2Share;
+                        newDamage -= mastery2_3Share;
+                        newDamage += mastery2_1Damage(nowLevel[2]+1,abilCombatLevel)/mastery2_1Damage(nowLevel[2],abilCombatLevel)*mastery2_1Share;
+                        newDamage += mastery2_2Damage(nowLevel[2]+1,abilCombatLevel)/mastery2_2Damage(nowLevel[2],abilCombatLevel)*mastery2_2Share;
+                        newDamage += mastery2_3Damage(nowLevel[2]+1,abilCombatLevel)/mastery2_3Damage(nowLevel[2],abilCombatLevel)*mastery2_3Share;
+                        newDamage = 100.001; // 임시로 강제 상승률 입력함(테섭 혹은 본섭 업데이트시 수정)
+                        break;
+                    case 3: // 5차 1번 스킬 강화한 경우의 계산
+                        if(nowLevel[3]>=30)return -1;
+                        newDamage -= fif1Share;
+                        newDamage += fifDamage(nowLevel[3]+1) / fifDamage(nowLevel[3])*fif1Share;
+                        break;
+                    case 4: // 5차 2번 스킬 강화한 경우의 계산
+                        if(nowLevel[4]>=30)return -1;
+                        newDamage -= fif2Share;
+                        newDamage += fifDamage(nowLevel[4]+1) / fifDamage(nowLevel[4])*fif2Share;
+                        break;
+                    case 5: // 5차 3번 스킬 강화한 경우의 계산
+                        if(nowLevel[5]>=30)return -1;
+                        newDamage -= fif3Share;
+                        newDamage += fifDamage(nowLevel[5]+1) / fifDamage(nowLevel[5])*fif3Share;
+                        break;
+                    case 6: // 5차 4번 스킬 강화한 경우의 계산
+                        if(nowLevel[6]>=30)return -1;
+                        newDamage -= fif4Share;
+                        newDamage += fifDamage(nowLevel[6]+1) / fifDamage(nowLevel[6])*fif4Share;
+                        break;
+                    default: // 뭔가 잘 못 되어가고 있음
+                        console.log('???');
+                        break;
+                }
+                return newDamage;
+            }
+
+            function calcEfficiencyErda(damage, what, isE){
+                if(isE == 'erda'){ // 솔 에르다 효율 중시
+                    switch(what){
+                        case 0: // 데미지 변화량을 솔 에르다 소모량으로 나눈 값
+                            return (damage-100)/ORIGIN_CONSUMPTION_ERDA[nowLevel[what]];
+                            break;
+                        case 1:
+                        case 2:
+                            return (damage-100)/MASTERY_CONSUMPTION_ERDA[nowLevel[what]];
+                            break;
+                        case 3:
+                        case 4:                
+                        case 5:                
+                        case 6:
+                            return (damage-100)/FIFTH_CONSUMPTION_ERDA[nowLevel[what]];
+                            break;
+                        default:
+                            return 0;
+                    }
+                }
+                else{ // 솔 에르다 조각 효율 중시
+                    switch(what){
+                        case 0:
+                            return (damage-100)/ORIGIN_CONSUMPTION_ERDA_PIECE[nowLevel[what]];
+                            break;
+                        case 1:
+                        case 2:
+                            return (damage-100)/MASTERY_CONSUMPTION_ERDA_PIECE[nowLevel[what]];
+                            break;
+                        case 3:
+                        case 4:                
+                        case 5:                
+                        case 6:
+                            return (damage-100)/FIFTH_CONSUMPTION_ERDA_PIECE[nowLevel[what]];
+                            break;
+                        default:
+                            return 0;
+                    }
+                }
+            }
+
+            // consumption Data
+
+            // 솔 에르다 요구량
+            const ORIGIN_CONSUMPTION_ERDA        = [0,1,1,1,2,2,2,3,3,10,3,3,4,4,4,4,4,4,5,15,5,5,5,5,5,6,6,6,7,20];
+            const MASTERY_CONSUMPTION_ERDA       = [3,1,1,1,1,1,1,1,2,5,2,2,2,2,2,2,2,2,2,8,3,3,3,3,3,3,3,3,3,10];
+            const FIFTH_CONSUMPTION_ERDA         = [4,1,1,1,2,2,2,3,3,8,3,3,3,3,3,3,3,3,4,12,4,4,4,4,4,5,5,5,6,15];
+
+            // 솔 에르다 조각 요구량
+            const ORIGIN_CONSUMPTION_ERDA_PIECE  = [0,30,35,40,45,50,55,60,65,200,80,90,100,110,120,130,140,150,160,350,170,180,190,200,210,220,230,240,250,500];
+            const MASTERY_CONSUMPTION_ERDA_PIECE = [50,15,18,20,23,25,28,30,33,100,40,45,50,55,60,65,70,75,80,175,85,90,95,100,105,110,115,120,125,250];
+            const FIFTH_CONSUMPTION_ERDA_PIECE   = [75,23,27,30,34,38,42,45,49,150,60,68,75,83,90,98,105,113,120,263,128,135,143,150,158,165,173,180,188,375];
+
+            function originDamage(level){
+                var nowOriginDamage = (4200+level*140)*7*2+(5400+level*180)*14*10; // 1~30레벨 공식
+                // 추가효과는 보뎀합 500 / 마력퍼 100 / 방무 97 기준
+                if(level>9) nowOriginDamage *= 1.01978; // 10레벨 이상 효과
+                if(level>19) nowOriginDamage *= 1.025; // 20레벨 이상 효과
+                if(level>29) nowOriginDamage *= 1.02201167; // 30레벨 효과 
+                return nowOriginDamage;
+            }
+
+            function mastery1_1Damage(level){
+                if(level == 0)return 340 + 50; // 비활성화 정뿌퍼뎀
+                return 480 + level*12; // 1~30레벨 공식
+            }
+
+            function mastery1_2Damage(level, abilCombat){
+                if(level == 0)return 410+abilCombat*8; // 비활성화 산꼬마퍼뎀
+                return (410 + abilCombat*8) + 60 + level*20; // 1~30레벨 공식
+            }
+
+            function mastery1_3Damage(level, abilCombat){
+                if(level == 0)return 395 + abilCombat*7; // 비활성화 산의씨앗퍼뎀
+                return (395 + abilCombat*7) + 60 + level*20; // 1~30레벨 공식
+            }
+
+            // 업데이트 이후 계산식 수정 부분
+            function mastery2_1Damage(level, abilCombat){
+                if(level == 0)return 395 + abilCombat*7; // 비활성화 분출 : 해돋이 우물 퍼뎀
+                return (395 + abilCombat*7) + 60 + level*20; // 1~30레벨 공식
+            }
+
+            function mastery2_2Damage(level, abilCombat){
+                if(level == 0)return 395 + abilCombat*7; // 비활성화 분출 : 너울이는 강 퍼뎀
+                return (395 + abilCombat*7) + 60 + level*20; // 1~30레벨 공식
+            }
+
+            function mastery2_3Damage(level, abilCombat){
+                if(level == 0)return 445 + abilCombat*15; // 비활성화 분출 : 돌개 바람 퍼뎀
+                return (445 + abilCombat*15) + 60 + level*20; // 1~30레벨 공식
+            }
+            // 업데이트 이후 계산식 수정부분
+
+            function fifDamage(level){
+                if(level == 0)return 1; // 비활성화
+                else if(level < 10)return (110+level)/100; // 1~9레벨
+                else if(level < 20)return (115+level)/100; // 10~19레벨
+                else if(level < 30)return (120+level)/100; // 20~29레벨
+                else return 1.6; // 30레벨
+            }
+        </script>
+    </body>
+</html>
